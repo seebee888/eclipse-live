@@ -1,0 +1,17 @@
+{
+  "name": "eclipse-live",
+  "private": true,
+  "type": "module",
+  "description": "Eclipse client dashboards: Content Rewards data every 15 minutes, password-gated per client.",
+  "scripts": {
+    "login": "node src/cli.mjs login",
+    "sync": "node src/sync.mjs",
+    "config": "node src/cli.mjs config",
+    "links": "node src/cli.mjs links",
+    "status": "node src/cli.mjs status"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "playwright-core": "1.63.0"
+  }
+}

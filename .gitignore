@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.state.enc
+config/clients.local.json
+.dev/
+.DS_Store
+config/art/
