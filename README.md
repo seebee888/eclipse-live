@@ -51,6 +51,7 @@ only in `config/clients.local.json` and `config/art/`, which stay on the Mac (gi
 ## Day-to-day
 
 ```bash
+npm run new        # add a client: answer a few questions, and their dashboard is published
 npm run links      # every client's link + password (reads the local config; never committed)
 npm run status     # when the cloud job last published
 ```
@@ -59,21 +60,23 @@ npm run status     # when the cloud job last published
 "updated" pill turns amber after 40 minutes):
 
 ```bash
-npm run login      # Chrome opens, you sign in to Whop yourself, the session is saved for the cloud job
+npm run login      # Chrome opens, you sign in to Whop yourself, the session is saved and a sync starts
 ```
 
-**Add a client or change a password:** edit `config/clients.local.json` (copy an existing client; generate a new
-random `slug`, `password`, `salt` and `fileId`), save the key art as `config/art/<fileId>.jpg` (1600×900) and point
-the client's `art` at it (`"art": "art/<fileId>.jpg"`), then:
+**Add a client:** `npm run new`. It asks for the Content Rewards campaign link, the name and title the dashboard
+shows, where it's streaming, and the key art (drag the image into Terminal). It then makes a random link and a
+password, seals the config, commits it as "Update clients" and pushes. The push starts a sync, so the dashboard is up
+about 3 minutes later. It prints the link and password to send the client. `npm run new -- --no-push` does
+everything except publish. Each run first copies `clients.local.json` to `~/.eclipse-live/backups/`.
+
+**Change a client** (password, names, review lists): edit `config/clients.local.json`, then:
 
 ```bash
 npm run config && git add config/config.enc && git commit -m "Update clients" && git push
 ```
 
-Keep the client's name out of the commit message: the repo is public.
-
-The push triggers a run, and the new page is live a couple of minutes later. Changing a password signs out
-everyone who saved the old one.
+Keep the client's name out of commit messages: the repo is public. A new password needs a new `salt` too, and
+changing it signs out everyone who saved the old one.
 
 **Preview locally** from a saved pull: `node scripts/preview.mjs <pull.json> <slug>=<pull key> …`, then serve `dist/`.
 

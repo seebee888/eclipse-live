@@ -7,6 +7,7 @@
     "login": "node src/cli.mjs login",
     "sync": "node src/sync.mjs",
     "config": "node src/cli.mjs config",
+    "new": "node src/cli.mjs new",
     "links": "node src/cli.mjs links",
     "status": "node src/cli.mjs status"
   },
