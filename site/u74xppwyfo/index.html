@@ -594,7 +594,7 @@ const POST_HOSTS = /^(?:[\w-]+\.)*(instagram\.com|tiktok\.com|youtube\.com|youtu
 function safeUrl(u, kind) {
   try {
     const x = new URL(u);
-    if (x.protocol !== 'https:') return null;
+    if (x.protocol !== 'https:' && !(kind !== 'post' && /^data:image\/(jpeg|png|webp);base64,/.test(u))) return null;
     if (kind === 'post' && !POST_HOSTS.test(x.hostname)) return null;
     return x.href;
   } catch { return null; }
@@ -737,16 +737,14 @@ function stats(s) {
     out.push(stat('vph', 'Views per hour', k.views24h / 24, '/hr', 'Average over the last 24 hours',
       p48.some(v => v > 0) ? sparkBars(p48, 32, true) : '', 'Views added across the campaign each hour. The bars are the last 48 hours, and the violet one is the hour still running.'));
   } else {
-    // no 24-hour figure yet: the daily average since launch, with a bar for each day
-    // (the curve's first day holds everything from before tracking began, so it's left out)
-    const days = (s.curve || []).slice(1).slice(-30).map(d => d.gained);
-    out.push(stat('vpd', 'Views per day', k.totalViews / Math.max(1, s.campaign.day || 1), '/day', `Average over ${commas(s.campaign.day || 1)} days`,
-      days.length > 2 ? sparkBars(days, 32, true) : '', 'Views added across the campaign each day since launch. The violet bar is today so far.'));
+    const ef = k.earnedViews / (k.totalViews || 1);
+    out.push(stat('earn', 'Earned media', k.earnedViews, '', `${pct(ef)}% of all views, on top of what we paid for`,
+      meter(ef, true), 'Views on campaign clips we didn’t pay for: every view beyond the paid ones.'));
   }
   const vf = k.verifiedViews / (k.totalViews || 1);
-  out.push(stat('ver', 'Verified views', k.verifiedViews, '',
-    `${pct(vf)}% of all views${k.verified24h ? `<span class="up">${SVG.up}+${commas(k.verified24h)} in the last 24 hours</span>` : ''}`,
-    meter(vf, true), 'Views on clips reviewed and approved for authentic engagement.'));
+  out.push(stat('ver', 'Paid views', k.verifiedViews, '',
+    `$${k.cpm.toFixed(2)} CPM on $${commas(k.price)}<span class="up">${SVG.up}+${commas(k.sinceSent)} since ${day(k.sentAt + 'T12:00:00Z')}</span>`,
+    meter(vf, true), 'Views on the clips we paid creators for. CPM is the campaign price per 1,000 paid views.'));
   let viz = '';
   const P = k.engagementParts;
   if (P) {
@@ -758,24 +756,22 @@ function stats(s) {
       <div class="keys">${parts.map(p => `<span><i style="background:${p[2]}"></i>${p[0]}<b>${pctFine(p[1])}%</b></span>`).join('')}</div>`;
   }
   out.push(stat('eng', 'Engagement rate', k.engagement == null ? '–' : pct(k.engagement), '%', esc(cap(k.engagementBasis)), viz,
-    'Across verified clips. Shares and saves come from creators’ Instagram Insights.'));
+    'Across paid clips. Shares and saves come from creators’ Instagram Insights.'));
   const perDay = (s.clipsPerDay || []).map(x => x.n), newest = fresh(s.latest?.[0]);
   out.push(stat('clips', 'Clips posted', k.clips, '',
     `By ${commas(k.creators)} creators${newest ? ` · newest <span data-ago="${esc(newest.at)}">${ago(newest.at)}</span>` : k.clips24h ? ` · ${commas(k.clips24h)} today` : ''}`,
-    strip(s.latest) || (perDay.length > 2 ? sparkBars(perDay) : ''), 'Clips live in the campaign. The strip shows the newest ones.'));
+    strip(s.latest) || (perDay.length > 2 ? sparkBars(perDay) : ''), 'Every clip creators submitted to the campaign.'));
   return out.join('');
 }
 
 // Real facts that take turns in the chip under the total.
 function facts(s) {
   const k = s.kpis, A = s.audience?.markets?.[0], out = [];
-  if (k.views24h) out.push(`${SVG.up}+${commas(k.views24h)} views in the last 24 hours`);
-  const nw = fresh(s.latest?.[0]);
-  if (nw) out.push(`<i></i>Newest clip posted <span data-ago="${esc(nw.at)}">${ago(nw.at)}</span>`);
+  if (k.sinceSent > 0) out.push(`${SVG.up}+${commas(k.sinceSent)} views since ${day(k.sentAt + 'T12:00:00Z')}, after the campaign closed`);
+  out.push(`<i></i>$${k.cpm.toFixed(2)} CPM, vs a $14.91 average for Meta ads`);
   if (A) out.push(`<i></i>${Math.round(A.pct)}% of viewers are in ${esc(the(A.name))}`);
   if (s.top?.[0]) out.push(`<i></i>Top clip at ${esc(short(s.top[0].v))} views`);
-  if (k.clips24h) out.push(`<i></i>${commas(k.clips24h)} new clips in the last 24 hours`);
-  if (k.engagement != null) out.push(`<i></i>${pct(k.engagement)}% engagement on verified clips`);
+  if (k.engagement != null) out.push(`<i></i>${pct(k.engagement)}% engagement on paid clips`);
   return out;
 }
 // one line at a time, sliding up, with the chip fitting itself to each line; the step is read from the layout so it
@@ -806,11 +802,7 @@ function board(s) {
   const RX = s.reactions;
   const items = [
     { w: 7, html: cls => `<section class="panel ${cls}">
-      <div class="ph"><div><h2>Views over time</h2><p class="note">Every clip still in the campaign</p></div>
-        <div class="seg" role="group" aria-label="Chart view">
-          <button type="button" data-mode="total" aria-pressed="${MODE === 'total'}">Total</button>
-          <button type="button" data-mode="daily" aria-pressed="${MODE === 'daily'}">Per day</button>
-          ${s.pulse ? `<button type="button" data-mode="pulse" aria-pressed="${MODE === 'pulse'}">48 hours</button>` : ''}
+      <div class="ph"><div><h2>Views over time</h2><p class="note">Paid + earned media. Tracked hourly to Nov 5, then a straight line to the Nov 20 recount</p></div>
         </div></div>
       <div class="chart" id="chart"><div class="tip" id="tip"></div></div></section>` },
     s.insights && { w: 6, html: cls => whoWatches(s.insights, cls) },
@@ -863,7 +855,7 @@ function render(s) {
     <div class="sync" id="sync" title="Final numbers for the finished campaign.">
       <svg viewBox="0 0 22 22" aria-hidden="true"><circle class="trk" cx="11" cy="11" r="8"/><circle class="prg" id="prg" cx="11" cy="11" r="8" stroke-dasharray="50.3" stroke-dashoffset="50.3"/></svg>
       <b id="sync-l">Live</b><span class="sep"></span>
-      <span class="long">Updated <span data-ago="${esc(s.generatedAt)}">${ago(s.generatedAt)}</span></span><span class="sep long"></span>
+      <span class="long">As of ${esc(day(s.dataAsOf))}</span><span class="sep long"></span>
       <span>Campaign wrapped<time id="next"></time></span>
     </div>
   </div></header>
@@ -875,13 +867,13 @@ function render(s) {
         ${show}
         <ul class="facts">
           <li class="on"><span class="dot${st.on ? '' : ' off'}"></span>${esc(st.chip)}</li>
-          <li>Day ${esc(s.campaign.day || 1)}</li>
+          <li>${esc(s.campaign.lengthDays || s.campaign.day || 1)}-day campaign</li>
           <li>Launched ${esc(day(s.campaign.launch))}</li>
           ${plats.map(p => `<li>${ICON[p.p] || ''}${esc(PLAT[p.p] || p.p)}</li>`).join('')}
         </ul>
         <div class="total">
           <div class="total-n">${count('total', k.totalViews)}</div>
-          <p class="total-l">Total views${k.views24h ? `<span class="sr">, up ${commas(k.views24h)} in the last 24 hours</span>` : ''}
+          <p class="total-l">Paid + earned media views${k.views24h ? `<span class="sr">, up ${commas(k.views24h)} in the last 24 hours</span>` : ''}
             ${F.length ? `<span class="ticker" aria-hidden="true"><span class="tk" id="tk">${F.map(f => `<span>${f}</span>`).join('')}</span></span>` : ''}</p>
         </div>
       </div>
@@ -917,7 +909,7 @@ function render(s) {
         <p class="tag">The clipping network built for entertainment.</p>
       </div>
       <div>
-        <p class="fine">Views as of ${esc(timeLocal(s.dataAsOf))}. Verified views are reviewed and approved for authentic engagement. These are the campaign's final numbers.</p>
+        <p class="fine">Views as of ${esc(timeLocal(s.dataAsOf))}. Paid views are on the clips we paid creators for, and CPM is the $${commas(s.kpis.price)} campaign price per 1,000 of them. Earned media is every other view the campaign drove. Posts creators later took down keep their last recorded count. These are the campaign's final numbers.</p>
         <div class="acts">
           ${document.fullscreenEnabled ? `<button class="act" type="button" id="a-tv">${SVG.screen}Big screen</button>` : ''}
           <button class="act" type="button" id="a-install" ${INSTALL ? '' : 'hidden'}>${SVG.install}Install app</button>
@@ -1255,7 +1247,7 @@ function drawChart(animate) {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
   svg.setAttribute('role', 'img');
-  svg.setAttribute('aria-label', pulse ? 'Views gained per hour, last 48 hours' : MODE === 'daily' ? 'Views gained per day' : 'Total views over time');
+  svg.setAttribute('aria-label', pulse ? 'Views gained per hour, last 48 hours' : MODE === 'daily' ? 'Views gained per day' : 'Paid and earned media views over time');
   svg.innerHTML = `${defs}<g class="grid">${grid}</g>${marks}<g class="axis">${ax}</g>
     <line id="xh" y1="${m.t}" y2="${m.t + ih}" stroke="rgba(14,12,21,.25)" stroke-dasharray="3 3" opacity="0"/>
     <circle id="xd" r="5" fill="var(--violet)" stroke="#fff" stroke-width="2" opacity="0"/>
