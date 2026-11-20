@@ -744,9 +744,9 @@ function stats(s) {
       days.length > 2 ? sparkBars(days, 32, true) : '', 'Views added across the campaign each day since launch. The violet bar is today so far.'));
   }
   const vf = k.verifiedViews / (k.totalViews || 1);
-  out.push(stat('ver', 'Verified views', k.verifiedViews, '',
-    `${pct(vf)}% of all views${k.verified24h ? `<span class="up">${SVG.up}+${commas(k.verified24h)} in the last 24 hours</span>` : ''}`,
-    meter(vf, true), 'Views on clips reviewed and approved for authentic engagement.'));
+  out.push(stat('ver', 'Paid views', k.verifiedViews, '',
+    `${pct(vf)}% of all views, the rest is earned media${k.verified24h ? `<span class="up">${SVG.up}+${commas(k.verified24h)} in the last 24 hours</span>` : ''}`,
+    meter(vf, true), 'Views on the clips we pay creators for. Every other view the campaign drives is earned media.'));
   let viz = '';
   const P = k.engagementParts;
   if (P) {
@@ -758,7 +758,7 @@ function stats(s) {
       <div class="keys">${parts.map(p => `<span><i style="background:${p[2]}"></i>${p[0]}<b>${pctFine(p[1])}%</b></span>`).join('')}</div>`;
   }
   out.push(stat('eng', 'Engagement rate', k.engagement == null ? '–' : pct(k.engagement), '%', esc(cap(k.engagementBasis)), viz,
-    'Across verified clips. Shares and saves come from creators’ Instagram Insights.'));
+    'Across paid clips. Shares and saves come from creators’ Instagram Insights.'));
   const perDay = (s.clipsPerDay || []).map(x => x.n), newest = fresh(s.latest?.[0]);
   out.push(stat('clips', 'Clips posted', k.clips, '',
     `By ${commas(k.creators)} creators${newest ? ` · newest <span data-ago="${esc(newest.at)}">${ago(newest.at)}</span>` : k.clips24h ? ` · ${commas(k.clips24h)} today` : ''}`,
@@ -775,7 +775,7 @@ function facts(s) {
   if (A) out.push(`<i></i>${Math.round(A.pct)}% of viewers are in ${esc(the(A.name))}`);
   if (s.top?.[0]) out.push(`<i></i>Top clip at ${esc(short(s.top[0].v))} views`);
   if (k.clips24h) out.push(`<i></i>${commas(k.clips24h)} new clips in the last 24 hours`);
-  if (k.engagement != null) out.push(`<i></i>${pct(k.engagement)}% engagement on verified clips`);
+  if (k.engagement != null) out.push(`<i></i>${pct(k.engagement)}% engagement on paid clips`);
   return out;
 }
 // one line at a time, sliding up, with the chip fitting itself to each line; the step is read from the layout so it
@@ -883,7 +883,7 @@ function render(s) {
         </ul>
         <div class="total">
           <div class="total-n">${count('total', k.totalViews)}</div>
-          <p class="total-l">Total views${k.views24h ? `<span class="sr">, up ${commas(k.views24h)} in the last 24 hours</span>` : ''}
+          <p class="total-l">Paid + earned media views${k.views24h ? `<span class="sr">, up ${commas(k.views24h)} in the last 24 hours</span>` : ''}
             ${F.length ? `<span class="ticker" aria-hidden="true"><span class="tk" id="tk">${F.map(f => `<span>${f}</span>`).join('')}</span></span>` : ''}</p>
         </div>
       </div>
@@ -919,7 +919,7 @@ function render(s) {
         <p class="tag">The clipping network built for entertainment.</p>
       </div>
       <div>
-        <p class="fine">Views as of ${esc(timeLocal(s.dataAsOf))}. Verified views are reviewed and approved for authentic engagement. Numbers are usually updated once a day.</p>
+        <p class="fine">Views as of ${esc(timeLocal(s.dataAsOf))}. Paid views are on the clips we pay creators for. Earned media is every other view the campaign drives. Numbers are usually updated once a day.</p>
         <div class="acts">
           ${document.fullscreenEnabled ? `<button class="act" type="button" id="a-tv">${SVG.screen}Big screen</button>` : ''}
           <button class="act" type="button" id="a-install" ${INSTALL ? '' : 'hidden'}>${SVG.install}Install app</button>
@@ -1259,7 +1259,7 @@ function drawChart(animate) {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
   svg.setAttribute('role', 'img');
-  svg.setAttribute('aria-label', pulse ? 'Views gained per hour, last 48 hours' : MODE === 'daily' ? 'Views gained per day' : 'Total views over time');
+  svg.setAttribute('aria-label', pulse ? 'Views gained per hour, last 48 hours' : MODE === 'daily' ? 'Views gained per day' : 'Paid and earned media views over time');
   svg.innerHTML = `${defs}<g class="grid">${grid}</g>${marks}<g class="axis">${ax}</g>
     <line id="xh" y1="${m.t}" y2="${m.t + ih}" stroke="rgba(14,12,21,.25)" stroke-dasharray="3 3" opacity="0"/>
     <circle id="xd" r="5" fill="var(--violet)" stroke="#fff" stroke-width="2" opacity="0"/>
