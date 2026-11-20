@@ -127,15 +127,21 @@ const commands = {
     console.log('Sign in to Whop in the Chrome window that just opened, with the account that runs the Eclipse business.');
     console.log('Once you are in, a second tab opens Content Rewards to confirm access. This waits up to 10 minutes.');
     const deadline = Date.now() + 10 * 60e3;
-    let ok = false, probe = null, userAgent = '';
+    console.log('Leave the Chrome window open until this says it is done.');
+    let ok = false, probe = null, userAgent = '', last = '';
+    // where a tab is, without query strings or fragments (those can carry sign-in tokens)
+    const where = p => { try { const u = new URL(p.url()); return u.hostname + u.pathname; } catch { return '?'; } };
+    const say = s => { if (s !== last) console.log(`  ${new Date().toLocaleTimeString()}  ${s}`); last = s; };
     while (Date.now() < deadline && !ok) {
       await new Promise(r => setTimeout(r, 5000));
-      if (page.isClosed()) break;
-      if (/\/(login|signup|sign-in|auth|verify|otp)/.test(new URL(page.url()).pathname)) continue;
+      if (page.isClosed() || !browser.isConnected()) { console.log('  The sign-in window was closed.'); break; }
+      if (/\/(login|signup|sign-in|auth|verify|otp)/.test(new URL(page.url()).pathname)) { say(`sign-in tab: ${where(page)} (waiting for you to finish signing in)`); continue; }
       probe ||= await context.newPage();
-      ok = await onBrandSide(probe, 15000).catch(() => false);
+      ok = await onBrandSide(probe, 30000).catch(e => (say(`check failed: ${e.message.split('\n')[0]}`), false));
+      if (!ok) say(`sign-in tab: ${where(page)} | Content Rewards check landed on ${where(probe)}, not the business side yet`);
     }
-    if (!ok) { await browser.close(); throw new Error('Did not reach the Content Rewards business side in 10 minutes. Run npm run handoff again.'); }
+    if (!ok) { await browser.close().catch(() => {}); throw new Error('Did not reach the Content Rewards business side. Run npm run handoff again; the lines above show where it got stuck.'); }
+    console.log('  Content Rewards business side reached. Checking the session headless...');
     userAgent = await probe.evaluate(() => navigator.userAgent);
     const storage = await context.storageState();
     await browser.close();
