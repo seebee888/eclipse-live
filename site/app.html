@@ -118,7 +118,8 @@ button { font: inherit; color: inherit; }
 .facts li { display: inline-flex; align-items: center; gap: 8px; }
 .facts .on { color: var(--ink); font-weight: 600; }
 .total { margin-top: 44px; }
-.total-n { font: 800 clamp(64px, 6.6vw, 96px)/.9 var(--display); letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
+.cm { margin: 0 .06em 0 .03em; }
+.total-n { font: 800 clamp(64px, 6.6vw, 96px)/.9 var(--display); letter-spacing: 0; font-variant-numeric: tabular-nums; }
 .total-l { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 16px 0 0; font: 600 16px var(--sans); color: var(--ink2); }
 /* real facts take turns in the chip, one line at a time */
 .ticker { display: inline-flex; align-items: flex-start; height: 32px; padding: 0 14px; overflow: hidden; border-radius: 99px; background: var(--mist);
@@ -144,7 +145,7 @@ button { font: inherit; color: inherit; }
 .focus::after { content: ''; position: absolute; left: -12px; top: -12px; width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--lens); animation: ping 2.4s var(--ease) infinite; }
 .focus .lab { position: absolute; left: 0; bottom: 18px; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 15px;
   border-radius: 99px; background: #fff; box-shadow: var(--lift); white-space: nowrap; font: 600 14px var(--sans); color: var(--ink2); }
-.focus .lab b { font: 800 18px/1 var(--display); letter-spacing: -.02em; color: var(--violet); font-variant-numeric: tabular-nums; }
+.focus .lab b { font: 800 18px/1 var(--display); letter-spacing: 0; color: var(--violet); font-variant-numeric: tabular-nums; }
 .markets { min-width: 0; }
 .markets h2 { margin: 0; font: 800 18px/1.2 var(--display); letter-spacing: -.02em; }
 .markets p { margin: 4px 0 12px; font-size: 12.5px; line-height: 1.45; color: var(--muted); }
@@ -174,7 +175,7 @@ button { font: inherit; color: inherit; }
 .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
 .stat { display: flex; flex-direction: column; min-width: 0; padding: 22px; border-radius: var(--r); background: var(--s1); }
 .stat h3 { margin: 0; display: flex; align-items: center; gap: 6px; font: 600 13.5px/1.3 var(--sans); color: var(--ink2); }
-.stat .v { margin: 12px 0 6px; font: 800 clamp(30px, 2.8vw, 40px)/1 var(--display); letter-spacing: -.035em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.stat .v { margin: 12px 0 6px; font: 800 clamp(30px, 2.8vw, 40px)/1 var(--display); letter-spacing: 0; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .stat .v small { margin-left: 4px; font: 600 .42em var(--sans); letter-spacing: 0; color: var(--muted); }
 .stat .s { margin: 0; font-size: 13px; line-height: 1.45; color: var(--muted); }
 .stat .s .up { display: flex; align-items: center; gap: 5px; margin-top: 3px; color: var(--ink2); font-variant-numeric: tabular-nums; }
@@ -219,10 +220,10 @@ button { font: inherit; color: inherit; }
 .navs button:hover:not(:disabled) { background: var(--s2); }
 .navs button:disabled { opacity: .35; cursor: default; }
 .headline { margin: 0; padding: 18px 24px 0; font-size: 15px; line-height: 1.45; color: var(--ink2); }
-.headline b { margin-right: 8px; font: 800 42px/1 var(--display); letter-spacing: -.035em; color: var(--ink); vertical-align: -5px; font-variant-numeric: tabular-nums; }
+.headline b { margin-right: 8px; font: 800 42px/1 var(--display); letter-spacing: 0; color: var(--ink); vertical-align: -5px; font-variant-numeric: tabular-nums; }
 .tip { position: absolute; z-index: 3; pointer-events: none; transform: translate(-50%, calc(-100% - 14px)); padding: 9px 14px; border-radius: 14px; background: var(--ink);
   box-shadow: 0 12px 28px -10px rgba(14, 12, 21, .45); white-space: nowrap; opacity: 0; transition: opacity .12s; font-size: 12px; color: rgba(255, 255, 255, .7); }
-.tip b { display: block; margin: 2px 0; font: 800 20px/1.15 var(--display); letter-spacing: -.025em; color: #fff; font-variant-numeric: tabular-nums; }
+.tip b { display: block; margin: 2px 0; font: 800 20px/1.15 var(--display); letter-spacing: 0; color: #fff; font-variant-numeric: tabular-nums; }
 
 /* chart */
 .chart { position: relative; height: 320px; margin: 14px 16px 12px; touch-action: pan-y; }
@@ -242,7 +243,7 @@ button { font: inherit; color: inherit; }
 .nx { padding: 22px 24px 0; }
 .nx-l { margin: 0; font-size: 13px; color: var(--muted); }
 .nx-r { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 4px 0 14px; }
-.nx-v { font: 800 44px/1 var(--display); letter-spacing: -.035em; font-variant-numeric: tabular-nums; }
+.nx-v { font: 800 44px/1 var(--display); letter-spacing: 0; font-variant-numeric: tabular-nums; }
 .nx-p { font-size: 13.5px; color: var(--ink2); font-variant-numeric: tabular-nums; }
 .nx-p b { font-weight: 700; color: var(--violet); }
 .nx .meter { height: 8px; }
@@ -265,7 +266,7 @@ button { font: inherit; color: inherit; }
 .rx { list-style: none; margin: 0; padding: 0 24px 24px; display: grid; grid-template-columns: 1fr; gap: 12px 28px; }
 .rx li { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: 13.5px; color: var(--ink2); }
 .rx li i { width: 10px; height: 10px; border-radius: 3px; }
-.rx li b { font: 800 16px/1 var(--display); letter-spacing: -.02em; color: var(--ink); font-variant-numeric: tabular-nums; }
+.rx li b { font: 800 16px/1 var(--display); letter-spacing: 0; color: var(--ink); font-variant-numeric: tabular-nums; }
 .rxp.wide .rx-in { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 0 12px; padding-bottom: 4px; }
 .rxp.wide .rx { grid-template-columns: 1fr 1fr; padding-top: 18px; }
 
@@ -289,7 +290,7 @@ button { font: inherit; color: inherit; }
 .mv { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 14px; align-items: center; padding: 10px; border-radius: 18px; background: #fff; transition: box-shadow .2s; }
 .mv:hover { box-shadow: var(--lift); }
 .mv img, .mv .ph0 { display: block; width: 44px; height: 60px; border-radius: 10px; object-fit: cover; background: var(--s2); }
-.mv .g { display: inline-flex; align-items: center; gap: 4px; font: 800 20px/1 var(--display); letter-spacing: -.025em; font-variant-numeric: tabular-nums; }
+.mv .g { display: inline-flex; align-items: center; gap: 4px; font: 800 20px/1 var(--display); letter-spacing: 0; font-variant-numeric: tabular-nums; }
 .mv .g svg { width: 13px; height: 13px; color: var(--violet); }
 .mv .s { display: block; margin-top: 4px; font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mv .sl { display: block; width: 100%; height: 22px; margin-top: 6px; }
@@ -313,7 +314,7 @@ button { font: inherit; color: inherit; }
 .pst .go svg { display: block; width: 100%; height: 100%; }
 .t10:hover .go, .t10:focus-visible .go { opacity: 1; transform: none; }
 .meta { grid-column: 2; grid-row: 2; display: block; padding: 14px 2px 0; }
-.meta b { font: 800 24px/1 var(--display); letter-spacing: -.035em; font-variant-numeric: tabular-nums; }
+.meta b { font: 800 24px/1 var(--display); letter-spacing: 0; font-variant-numeric: tabular-nums; }
 .meta .vl { margin-left: 5px; font-size: 13px; color: var(--ink2); }
 .meta .of { display: block; margin-top: 6px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .meta .of em { font-style: normal; font-weight: 600; color: var(--violet); }
@@ -494,6 +495,8 @@ const NUMS = {};   // where each counting number last stood, so a fresh update r
 // ---------- formatting (numbers round down, like the reports) ----------
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const commas = v => Math.round(v).toLocaleString('en-US');
+// the display font's comma has almost no side bearing, so in big numbers each one gets its own room (.cm)
+const num = v => commas(v).replace(/,/g, '<span class="cm">,</span>');
 const trunc = (x, d) => Math.floor(x * 10 ** d + 1e-9) / 10 ** d;
 function short(v) {
   if (v >= 1e6) return trunc(v / 1e6, 2).toFixed(2) + 'M';
@@ -656,7 +659,7 @@ function status(s) {
 }
 // the newest clip, only while it's news
 const fresh = c => c && Date.now() - Date.parse(c.at) < 2 * DAY ? c : null;
-const count = (key, v) => `<span data-count="${Math.floor(v)}" data-key="${key}">${commas(NUMS[key] ?? 0)}</span>`;
+const count = (key, v) => `<span data-count="${Math.floor(v)}" data-key="${key}">${num(NUMS[key] ?? 0)}</span>`;
 const info = t => `<span class="info" tabindex="0" title="${esc(t)}" aria-label="${esc(t)}">${SVG.info}</span>`;
 const stat = (key, label, value, unit, sub, viz = '', tip = '') => `<div class="stat k-${key}">
   <h3>${esc(label)}${tip ? info(tip) : ''}</h3>
@@ -913,7 +916,7 @@ function milestones(s) {
       <div class="nx-r"><span class="nx-v">${axisNum(next)}</span><span class="nx-p"><b>${Math.floor(frac * 100)}%</b> of the way there</span></div>
       ${meter(frac, true)}
       <div class="nx-x"><span>${axisNum(last)}</span><span>${axisNum(next)}</span></div>
-      <p class="nx-s"><b>${commas(toGo)}</b> views to go${eta ? `. Around ${esc(eta)} at this week’s pace.` : '.'}</p>
+      <p class="nx-s"><b>${num(toGo)}</b> views to go${eta ? `. Around ${esc(eta)} at this week’s pace.` : '.'}</p>
     </div>
     <ol class="tl">${shown.map((h, i) => `<li${M.hit.length > 5 && i === 4 ? ' class="gap"' : ''}><b>${axisNum(h.v)}</b><span>${esc(dayLocal(h.t))}</span><span>Day ${dayN(h.t)}</span></li>`).join('')}</ol>`;
 }
@@ -939,7 +942,7 @@ function heat(s) {
     return `<i data-i="${i}" style="background:${heatColor(P[i].g, max)}"${cls ? ` class="${cls}"` : ''}></i>`;
   };
   return `<div class="ph"><div><h2>When views come in</h2><p class="note">Views gained each hour over the last 7 days, in your time zone</p></div></div>
-    ${peak.g ? `<p class="headline"><b>+${commas(peak.g)}</b>views in the busiest hour, ${esc(weekday(peak.t))} at ${esc(hourLocal(peak.t))}</p>` : ''}
+    ${peak.g ? `<p class="headline"><b>+${num(peak.g)}</b>views in the busiest hour, ${esc(weekday(peak.t))} at ${esc(hourLocal(peak.t))}</p>` : ''}
     <div class="hm" id="hm" role="img" aria-label="Views gained per hour over the last 7 days.${peak.g ? ` Busiest hour: ${esc(weekday(peak.t))} at ${esc(hourLocal(peak.t))}, ${commas(peak.g)} views.` : ''}">
       ${rows.map(r => `<div class="hm-r"><span class="hm-d">${WEEKDAYS[r.d.getDay()]} ${r.d.getDate()}</span>${r.c.map(cell).join('')}</div>`).join('')}
       <div class="hm-r hm-x"><span></span>${[0, 6, 12, 18].map(h => `<span style="grid-column:${h + 2} / span 6">${hour12(h)}</span>`).join('')}</div>
@@ -973,12 +976,12 @@ function rollNums() {
   document.querySelectorAll('[data-count]').forEach(el => {
     const key = el.dataset.key, to = +el.dataset.count, from = NUMS[key] ?? 0;
     NUMS[key] = to;
-    if (REDUCED || from === to) { el.textContent = commas(to); return; }
+    if (REDUCED || from === to) { el.innerHTML = num(to); return; }
     const t0 = performance.now(), dur = from ? 1400 : 2100;
     const f = now => {
       if (!el.isConnected) return;
       const q = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - q, 4);
-      el.textContent = commas(Math.floor(from + (to - from) * e));
+      el.innerHTML = num(Math.floor(from + (to - from) * e));
       if (q < 1) requestAnimationFrame(f);
     };
     requestAnimationFrame(f);
@@ -1044,7 +1047,7 @@ function wire(s) {
       const c = e.target.closest?.('i[data-i]');
       if (!c) { htip.style.opacity = 0; return; }
       const i = +c.dataset.i, x = P[i], r = c.getBoundingClientRect(), h = hm.getBoundingClientRect();
-      htip.innerHTML = `${esc(weekday(x.t))}, ${hourLocal(x.t)}–${hourLocal(new Date(Date.parse(x.t) + HOUR).toISOString())}<b>+${commas(x.g)}</b>${i === P.length - 1 ? 'this hour so far' : 'views that hour'}`;
+      htip.innerHTML = `${esc(weekday(x.t))}, ${hourLocal(x.t)}–${hourLocal(new Date(Date.parse(x.t) + HOUR).toISOString())}<b>+${num(x.g)}</b>${i === P.length - 1 ? 'this hour so far' : 'views that hour'}`;
       htip.style.left = Math.max(100, Math.min(h.width - 100, r.left - h.left + r.width / 2)) + 'px';
       htip.style.top = (r.top - h.top) + 'px';
       htip.style.opacity = 1;
@@ -1180,11 +1183,11 @@ function drawChart(animate) {
     barEls.forEach((b, j) => b.style.opacity = j === i ? 1 : .35);
     if (pulse) {
       const e = new Date(Date.parse(it.t) + HOUR).toISOString();
-      tip.innerHTML = `${dayLocal(it.t)}, ${hourLocal(it.t)}–${hourLocal(e)}${it.na ? '<b>–</b>no reading that hour' : `<b>+${commas(it.v)}</b>${last ? 'this hour so far' : 'views that hour'}`}`;
+      tip.innerHTML = `${dayLocal(it.t)}, ${hourLocal(it.t)}–${hourLocal(e)}${it.na ? '<b>–</b>no reading that hour' : `<b>+${num(it.v)}</b>${last ? 'this hour so far' : 'views that hour'}`}`;
     } else if (MODE === 'daily') {
-      tip.innerHTML = `${day(it.d.d + 'T12:00:00Z')}${last ? ' (so far)' : ''}<b>+${commas(it.v)}</b>views that day`;
+      tip.innerHTML = `${day(it.d.d + 'T12:00:00Z')}${last ? ' (so far)' : ''}<b>+${num(it.v)}</b>views that day`;
     } else {
-      tip.innerHTML = `${last ? 'Now' : 'End of ' + day(it.d.d + 'T12:00:00Z')}<b>${commas(it.v)}</b>${it.d.gained ? '+' + commas(it.d.gained) + ' that day' : 'total views'}`;
+      tip.innerHTML = `${last ? 'Now' : 'End of ' + day(it.d.d + 'T12:00:00Z')}<b>${num(it.v)}</b>${it.d.gained ? '+' + commas(it.d.gained) + ' that day' : 'total views'}`;
     }
     const tx = Math.max(80, Math.min(W - 80, x(i)));
     tip.style.left = (tx / W) * 100 + '%';
