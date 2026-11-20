@@ -3,31 +3,102 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="robots" content="noindex,nofollow">
-<meta name="theme-color" content="#ffffff">
-<title>Eclipse Live</title>
-<link rel="icon" href="assets/favicon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@85..100,400..800&family=Bricolage+Grotesque:opsz,wdth,wght@12..96,85..100,600..800&display=swap" rel="stylesheet">
+<title>Client Login · Eclipse</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0b0912">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="/assets/favicon.png">
+<link rel="apple-touch-icon" href="/assets/icon-180.png">
 <style>
-  :root { color-scheme: light; }
-  html { background: #fff; }
-  body { margin: 0; min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; text-align: center;
-    background: #fff; color: #0e0c15; font: 15px/1.55 'Archivo', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
-  ::selection { background: rgba(112, 71, 207, .18); }
-  .mark { display: block; width: 132px; height: auto; margin: 0 auto 20px; }
-  .word { font: 800 22px/1 'Archivo', sans-serif; font-stretch: 88%; letter-spacing: .04em; }
-  h1 { margin: 34px 0 8px; font: 800 32px/1.1 'Bricolage Grotesque', sans-serif; letter-spacing: -.035em; }
-  p { margin: 0 auto; max-width: 340px; color: #6e6a7c; }
+@font-face { font-family: 'Geist'; src: url(/assets/fonts/geist.woff2) format('woff2'); font-weight: 300 700; font-display: swap; }
+@font-face { font-family: 'Instrument Serif'; src: url(/assets/fonts/instrument-serif.woff2) format('woff2'); font-weight: 400; font-display: swap; }
+:root {
+  --bg: #0b0912; --line: rgba(245, 241, 251, .09); --line2: rgba(245, 241, 251, .16);
+  --cream: #f5f1fb; --cream2: rgba(245, 241, 251, .72); --cream3: rgba(245, 241, 251, .46);
+  --lilac: #c4a8f5; --ink: #0d0b14; --bad: #f29bb0;
+  --serif: 'Instrument Serif', ui-serif, Georgia, serif;
+  --sans: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { min-height: 100svh; display: grid; grid-template-rows: auto 1fr; background: var(--bg); color: var(--cream); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+/* Arc painted with gradients inside a screen-width box: no giant layers or blurred shadows, which iPhone Safari can draw with seams. */
+body::before { content: ''; --r: max(120vw, 900px); --g: 220px; --cy: calc(var(--g) + var(--r));
+  position: fixed; left: 0; right: 0; bottom: 0; height: calc(24vh + var(--g)); pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(circle at 50% var(--cy), transparent calc(var(--r) - 2.5px), rgba(240, 232, 255, .85) var(--r), transparent calc(var(--r) + 2.5px)),
+    radial-gradient(circle at 50% var(--cy), #0d0a16 calc(var(--r) - 1px), transparent var(--r)),
+    radial-gradient(circle at 50% var(--cy), rgba(196, 168, 245, .45) var(--r), rgba(150, 110, 240, .26) calc(var(--r) + 30px), rgba(112, 71, 207, .12) calc(var(--r) + var(--g) * .4), rgba(112, 71, 207, .04) calc(var(--r) + var(--g) * .7), rgba(112, 71, 207, 0) calc(var(--r) + var(--g))); }
+header { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; padding: 18px clamp(16px, 5vw, 48px); }
+.chip { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px 0 10px; border-radius: 999px; color: var(--cream); text-decoration: none; font-weight: 600; font-size: 15px; letter-spacing: -.01em; background: rgba(245, 241, 251, .04); box-shadow: inset 0 0 0 1px var(--line); }
+.chip svg { width: 30px; height: 20px; }
+.back { color: var(--cream3); font-size: 14px; text-decoration: none; } .back:hover { color: var(--cream); }
+main { position: relative; z-index: 1; min-width: 0; display: grid; place-items: center; padding: 24px 16px 18vh; }
+.card { width: 100%; max-width: 400px; padding: 32px 28px 28px; border-radius: 24px; background: #13101f; box-shadow: inset 0 0 0 1px var(--line), 0 40px 80px -40px rgba(0, 0, 0, .8); }
+h1 { margin: 0; font: 400 40px/1 var(--serif); letter-spacing: -.01em; text-align: center; }
+.sub { margin: 10px 0 26px; text-align: center; color: var(--cream3); font-size: 14px; }
+label { display: grid; min-width: 0; gap: 8px; margin-bottom: 16px; font-size: 14px; font-weight: 500; color: var(--cream2); }
+input { width: 100%; min-width: 0; height: 50px; padding: 0 16px; border: 0; border-radius: 14px; background: rgba(245, 241, 251, .045); box-shadow: inset 0 0 0 1px var(--line2); color: var(--cream); font: inherit; font-size: 16px; outline: none; transition: box-shadow .2s; }
+input:focus { box-shadow: inset 0 0 0 1px var(--lilac), 0 0 0 4px rgba(196, 168, 245, .14); }
+.bad input { box-shadow: inset 0 0 0 1px var(--bad); }
+button { width: 100%; height: 52px; margin-top: 6px; border: 0; border-radius: 999px; background: var(--lilac); color: var(--ink); font: 600 16px/1 var(--sans); cursor: pointer; transition: filter .2s, transform .2s; }
+button:hover { filter: brightness(1.06); } button:active { transform: scale(.99); } button:disabled { opacity: .7; cursor: default; }
+.err { min-height: 20px; margin: 14px 0 0; text-align: center; font-size: 14px; color: var(--bad); }
+.fine { margin: 18px 0 0; text-align: center; font-size: 13px; color: var(--cream3); }
+.fine a { color: var(--cream2); }
 </style>
 </head>
 <body>
-  <main>
-    <svg class="mark" viewBox="0 0 150 100" aria-hidden="true"><circle cx="50" cy="50" r="48" fill="#7047cf"/><circle cx="100" cy="50" r="48" fill="#b087e7"/><path d="M75 9.02A48 48 0 0 1 75 90.98A48 48 0 0 1 75 9.02Z" fill="#402087"/><path d="M69 37.5v25l21-12.5z" fill="#fff" stroke="#fff" stroke-width="5" stroke-linejoin="round"/></svg>
-    <div class="word">ECLIPSE</div>
-    <h1>Client dashboards</h1>
-    <p>Open the link your Eclipse contact sent you. Each campaign has its own private page.</p>
-  </main>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="mark" viewBox="0 0 150 100"><circle cx="50" cy="50" r="48" fill="#7047cf"/><circle cx="100" cy="50" r="48" fill="#b087e7"/><path d="M75 9.02A48 48 0 0 1 75 90.98A48 48 0 0 1 75 9.02Z" fill="#402087"/><path d="M69 37.5v25l21-12.5z" fill="#fff" stroke="#fff" stroke-width="5" stroke-linejoin="round"/></symbol></defs></svg>
+<header>
+  <a class="chip" href="/"><svg viewBox="0 0 150 100" aria-hidden="true"><use href="#mark"/></svg>Eclipse</a>
+  <a class="back" href="/">← Back to site</a>
+</header>
+<main>
+  <form class="card" id="login" novalidate>
+    <h1>client login</h1>
+    <p class="sub">Your campaign dashboard.</p>
+    <label>Username<input name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+    <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+    <button id="go">Sign in</button>
+    <p class="err" id="err" role="alert"></p>
+    <p class="fine">No login yet? <a href="/#contact">Contact us</a></p>
+  </form>
+</main>
+<script>
+  // Same login as eclipseclipping.com/login/. Nothing typed here is sent anywhere: the browser tries "username:password"
+  // against k.json, where each entry is a dashboard link + key sealed with that login. Live dashboards are tried
+  // first, then the website's own reports.
+  const f = document.getElementById('login'), err = document.getElementById('err'), go = document.getElementById('go');
+  const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+  const SLUG = /^[a-z0-9]{6,32}$/;
+  async function tryLogin(url, secret) {
+    const r = await fetch(url, { cache: 'no-store' }).catch(() => null); if (!r || !r.ok) return null;
+    const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret), 'PBKDF2', false, ['deriveKey']);
+    for (const e of await r.json()) {
+      try {
+        const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', hash: 'SHA-256', salt: unb64(e.kdf.salt), iterations: e.kdf.iter }, base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+        const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(e.iv) }, key, unb64(e.ct));
+        return JSON.parse(new TextDecoder().decode(pt));
+      } catch {}
+    }
+    return null;
+  }
+  f.addEventListener('submit', async e => {
+    e.preventDefault(); err.textContent = ''; f.classList.remove('bad');
+    if (!f.username.value.trim() || !f.password.value) { err.textContent = 'Enter your username and password.'; f.classList.add('bad'); return; }
+    go.disabled = true; go.textContent = 'Signing in…';
+    const secret = f.username.value.trim().toLowerCase() + ':' + f.password.value;
+    try {
+      const live = await tryLogin('k.json', secret);
+      if (live && SLUG.test(live.s)) { try { localStorage.setItem('eclipse-key:' + live.s, live.k); } catch {} location.href = live.s + '/index.html'; return; }
+      const report = await tryLogin('/login/k.json', secret);
+      if (report && SLUG.test(report.s)) { try { localStorage.setItem('eclipse-report-key', report.k); } catch {} location.href = '/d/' + report.s + '/'; return; }
+    } catch {}
+    f.password.value = ''; f.classList.add('bad');
+    err.textContent = 'Incorrect username or password.';
+    go.disabled = false; go.textContent = 'Sign in'; f.password.focus();
+  });
+</script>
 </body>
 </html>

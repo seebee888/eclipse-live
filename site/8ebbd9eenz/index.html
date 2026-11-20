@@ -508,6 +508,7 @@ html, body { overflow-x: clip; }
 @media (max-width: 1100px) { .board > .c6 { grid-column: 1 / -1; } }
 @media (max-width: 640px) { .ages span { font-size: 11px; } .ages { gap: 6px; } .src li { grid-template-columns: 78px minmax(0, 1fr) 40px; } .big2 b { font-size: 38px; } }
 @media (max-width: 900px) { .watch { grid-template-columns: 1fr; } .ph.withpic { padding-right: 96px; } .pic { width: 76px; } }
+.pst .go { width: 60px !important; height: 60px !important; margin: -30px 0 0 -30px !important; filter: drop-shadow(0 10px 18px rgba(64,32,135,.45)); }
 </style>
 </head>
 <body>
@@ -542,7 +543,7 @@ html, body { overflow-x: clip; }
 <script>
 'use strict';
 const DATA = document.querySelector('meta[name=eclipse-data]')?.content;
-const SLUG = location.pathname.split('/').filter(Boolean).slice(-1)[0] || 'demo';
+const SLUG = location.pathname.split('/').filter(x => x && x !== 'index.html').slice(-1)[0] || 'demo';
 const KEY_SLOT = 'eclipse-key:' + SLUG;
 const SYNC_EVERY = 15 * 60e3, STALE_AFTER = 40 * 60e3, DAY = 864e5, HOUR = 36e5;
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -607,7 +608,7 @@ const PLAT = { instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube', x: 
 const PLAY = '<svg viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M3 1.8v8.4c0 .5.6.8 1 .5l6.3-4.2a.6.6 0 0 0 0-1L4 1.3c-.4-.3-1 0-1 .5z"/></svg>';
 const MARK = '<svg viewBox="0 0 150 100" aria-hidden="true"><circle cx="50" cy="50" r="48" fill="#7047cf"/><circle cx="100" cy="50" r="48" fill="#b087e7"/><path d="M75 9.02A48 48 0 0 1 75 90.98A48 48 0 0 1 75 9.02Z" fill="#402087"/><path d="M69 37.5v25l21-12.5z" fill="#fff" stroke="#fff" stroke-width="5" stroke-linejoin="round"/></svg>';
 // the mark's middle on its own: the lens where the two circles overlap, with the play triangle
-const LENS = '<svg viewBox="50 7 50 86" aria-hidden="true"><path d="M75 9.02A48 48 0 0 1 75 90.98A48 48 0 0 1 75 9.02Z" fill="#402087"/><path d="M69 37.5v25l21-12.5z" fill="#fff" stroke="#fff" stroke-width="5" stroke-linejoin="round"/></svg>';
+const LENS = '<svg viewBox="0 0 56 56" aria-hidden="true"><defs><linearGradient id="pg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9a6cf5"/><stop offset="1" stop-color="#5b33b8"/></linearGradient></defs><circle cx="28" cy="28" r="27" fill="url(#pg)"/><circle cx="28" cy="28" r="26" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="2"/><path d="M23 18.5v19l15-9.5z" fill="#fff" stroke="#fff" stroke-width="3" stroke-linejoin="round"/></svg>';
 const BRAND = `${MARK}<span>ECLIPSE</span>`;
 const SVG = {
   share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>',
@@ -809,7 +810,6 @@ function board(s) {
           ${s.pulse ? `<button type="button" data-mode="pulse" aria-pressed="${MODE === 'pulse'}">48 hours</button>` : ''}
         </div></div>
       <div class="chart" id="chart"><div class="tip" id="tip"></div></div></section>` },
-    RX?.rows?.length && { w: 5, html: cls => reactions(RX, cls) },
     s.insights && { w: 6, html: cls => whoWatches(s.insights, cls) },
     s.insights && { w: 6, html: cls => foundIt(s.insights, cls) },
     s.insights?.watch && { w: 12, html: cls => watchTime(s.insights, cls) },
@@ -845,7 +845,7 @@ function stage(s, banner) {
 
 function render(s) {
   const c = s.client || {}, k = s.kpis, st = status(s), first = !BOOTED;
-  document.title = `${c.talent} · ${c.title} · Eclipse Live`;
+  document.title = `${c.talent}${c.title ? ' · ' + c.title : ''} · Eclipse Live`;
   const plats = s.campaign.platforms || [];
   const top = s.top || [];
   const banner = c.art && ART || '';
@@ -854,7 +854,7 @@ function render(s) {
   const show = globe && banner
     ? `<div class="np"><img src="${esc(banner)}" alt="${esc(c.talent)}, ${esc(c.title)}"><span><b>${esc(c.title)}</b>
         ${c.network ? `<small>${esc(c.networkLine || 'Now streaming on')} <strong>${esc(c.network)}</strong></small>` : ''}</span></div>`
-    : `<p class="show">${esc(c.title)}${!banner && c.network ? ` · ${esc(c.networkLine || 'Now streaming on')} ${esc(c.network)}` : ''}</p>`;
+    : !c.title && !c.network ? '' : `<p class="show">${esc(c.title)}${!banner && c.network ? ` · ${esc(c.networkLine || 'Now streaming on')} ${esc(c.network)}` : ''}</p>`;
   const html = `
   <header class="bar" id="bar"><div class="bar-in">
     <div class="brand" role="img" aria-label="Eclipse">${BRAND}</div>
@@ -918,7 +918,6 @@ function render(s) {
       <div>
         <p class="fine">Views as of ${esc(timeLocal(s.dataAsOf))}. Verified views are reviewed and approved for authentic engagement. This page refreshes itself every 15 minutes.</p>
         <div class="acts">
-          <button class="act" type="button" id="a-share">${SVG.share}Share link</button>
           ${document.fullscreenEnabled ? `<button class="act" type="button" id="a-tv">${SVG.screen}Big screen</button>` : ''}
           <button class="act" type="button" id="a-install" ${INSTALL ? '' : 'hidden'}>${SVG.install}Install app</button>
           <button class="act" type="button" id="a-lock">${SVG.lock}Sign out</button>
@@ -975,14 +974,11 @@ function whoWatches(I, cls) {
 }
 function foundIt(I, cls) {
   const S = I.sources, lead = S[0], nv = I.viewers.new, C = 2 * Math.PI * 30;
-  return `<section class="panel ${cls}">
+  return `<section class="panel ${cls} pad">
     <span class="pic b" aria-hidden="true"><img src="art/i-share.png" alt=""></span>
     <div class="ph withpic"><div><h2>How people found it</h2><p class="note">TikTok traffic sources on ${commas(I.basis.tiktokClips)} clips</p></div></div>
     <p class="big2"><b>${pc(lead.p)}</b><span>came from the ${esc(lead.s)} feed</span></p>
     <ul class="src">${S.map(x => `<li><span>${esc(x.s)}</span><span class="t"><i style="width:${(x.p * 100).toFixed(1)}%"></i></span><b>${pc(x.p)}</b></li>`).join('')}</ul>
-    <div class="nr"><svg width="74" height="74" viewBox="0 0 74 74" aria-hidden="true"><circle cx="37" cy="37" r="30" fill="none" stroke="rgba(112,71,207,.14)" stroke-width="10"/>
-      <circle cx="37" cy="37" r="30" fill="none" stroke="#7047cf" stroke-width="10" stroke-linecap="round" stroke-dasharray="${(C * nv).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 37 37)"/></svg>
-      <p><b>${pc(nv)} new viewers</b>People seeing ${esc(SNAP?.client?.talent || 'you')} for the first time, not followers who already know you</p></div>
   </section>`;
 }
 function watchTime(I, cls) {
@@ -1184,7 +1180,7 @@ function wire(s) {
     INSTALL.prompt(); await INSTALL.userChoice.catch(() => {}); INSTALL = null;
     document.getElementById('a-install').hidden = true;
   });
-  document.getElementById('a-lock')?.addEventListener('click', () => { store.clear(); location.reload(); });
+  document.getElementById('a-lock')?.addEventListener('click', () => { store.clear(); location.href = '../index.html'; });
 }
 
 // Big screen: full screen, and keep the display awake while it is up (for a TV in the office or a meeting room).
@@ -1580,6 +1576,7 @@ async function boot() {
       await show(KEY, box);
     } catch { KEY = null; store.clear(); }
   }
+  if (!KEY) { location.replace('../index.html?to=' + encodeURIComponent(SLUG)); return; }
   if (!KEY) {
     const gate = document.getElementById('gate'), form = document.getElementById('gate-form');
     const pw = document.getElementById('pw'), btn = document.getElementById('go'), err = document.getElementById('err');
