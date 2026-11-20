@@ -1569,7 +1569,9 @@ async function boot() {
   addEventListener('beforeinstallprompt', e => { e.preventDefault(); INSTALL = e; const b = document.getElementById('a-install'); if (b) b.hidden = false; });
   let box;
   try { box = await fetchBox(); } catch { box = null; }
-  const saved = store.get();
+  const hk = new URLSearchParams(location.hash.slice(1)).get('k');
+  if (hk) { store.set(hk, true); history.replaceState(null, '', location.pathname); }
+  const saved = store.get() || hk;
   if (box && saved) {
     try {
       KEY = await crypto.subtle.importKey('raw', unb64(saved), 'AES-GCM', true, ['decrypt']);

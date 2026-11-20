@@ -91,7 +91,7 @@ button:hover { filter: brightness(1.06); } button:active { transform: scale(.99)
     const secret = f.username.value.trim().toLowerCase() + ':' + f.password.value;
     try {
       const live = await tryLogin('k.json', secret);
-      if (live && SLUG.test(live.s)) { try { localStorage.setItem('eclipse-key:' + live.s, live.k); } catch {} location.href = live.s + '/index.html'; return; }
+      if (live && SLUG.test(live.s)) { try { localStorage.setItem('eclipse-key:' + live.s, live.k); } catch {} location.href = live.s + '/index.html#k=' + encodeURIComponent(live.k); return; }
       const report = await tryLogin('/login/k.json', secret);
       if (report && SLUG.test(report.s)) { try { localStorage.setItem('eclipse-report-key', report.k); } catch {} location.href = '/d/' + report.s + '/'; return; }
     } catch {}
