@@ -5,3 +5,4 @@ config/clients.local.json
 .dev/
 .DS_Store
 config/art/
+.handoff.enc

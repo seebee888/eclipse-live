@@ -3,11 +3,12 @@
 //   node src/cli.mjs init     make the master key (~/.eclipse-live/key) and store it as the ECLIPSE_KEY repo secret
 //   node src/cli.mjs config   encrypt config/clients.local.json into config/config.enc (commit and push it after)
 //   node src/cli.mjs login    open Chrome, sign in to Whop yourself, save the session for the cloud job
+//   node src/cli.mjs handoff  the same sign-in from a Mac without the master key (the cloud job re-seals it)
 //   node src/cli.mjs new      add a client: a few questions, then their dashboard is published (--no-push: local only)
 //   node src/cli.mjs links    print each client's dashboard link and password
 //   node src/cli.mjs status   when the cloud job last published
 import { execFileSync } from 'node:child_process';
-import { chmodSync, copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { chmodSync, copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createInterface } from 'node:readline';
 import { dirname, extname, join, resolve } from 'node:path';
 import { KEY_FILE, masterKey, seal, unseal } from './crypto.mjs';
@@ -105,6 +106,62 @@ const commands = {
       run('gh', ['workflow', 'run', 'sync.yml'], { stdio: 'pipe' });
       console.log('A sync is running now. Dashboards update in about 3 minutes.');
     } catch { console.log('The next scheduled run (within 15 minutes) picks it up.'); }
+  },
+
+  // `login` for a Mac without the master key. You sign in to Whop the same way; the session is sealed with a fresh
+  // one-time key, pushed to the `handoff` branch, and the key goes into the ECLIPSE_HANDOFF secret (write-only). The
+  // handoff workflow then checks the session against the real config, re-seals it with the master key and syncs.
+  async handoff() {
+    const appHost = (process.argv.find(a => a.startsWith('--app-host=')) || '').slice(11) || 'b4e0vdqv6zgqeqj4pfgm.apps.whop.com';
+    const launch = `https://whop.com/core/app/launch/?redirect=${encodeURIComponent(`https://${appHost}/b`)}`;
+    const onBrandSide = async (page, timeout) => {
+      await page.goto(launch, { waitUntil: 'domcontentloaded', timeout: 60000 });
+      await page.waitForURL(u => u.hostname === appHost && u.pathname.startsWith('/b'), { timeout }).catch(() => {});
+      const u = new URL(page.url());
+      return u.hostname === appHost && u.pathname.startsWith('/b');
+    };
+    const browser = await launchChrome({ headless: false });
+    const context = await browser.newContext({ viewport: null });
+    const page = await context.newPage();
+    await page.goto('https://whop.com/login/');
+    console.log('Sign in to Whop in the Chrome window that just opened, with the account that runs the Eclipse business.');
+    console.log('Once you are in, a second tab opens Content Rewards to confirm access. This waits up to 10 minutes.');
+    const deadline = Date.now() + 10 * 60e3;
+    let ok = false, probe = null, userAgent = '';
+    while (Date.now() < deadline && !ok) {
+      await new Promise(r => setTimeout(r, 5000));
+      if (page.isClosed()) break;
+      if (/\/(login|signup|sign-in|auth|verify|otp)/.test(new URL(page.url()).pathname)) continue;
+      probe ||= await context.newPage();
+      ok = await onBrandSide(probe, 15000).catch(() => false);
+    }
+    if (!ok) { await browser.close(); throw new Error('Did not reach the Content Rewards business side in 10 minutes. Run npm run handoff again.'); }
+    userAgent = await probe.evaluate(() => navigator.userAgent);
+    const storage = await context.storageState();
+    await browser.close();
+
+    const check = await launchChrome();
+    try {
+      const ctx = await check.newContext({ storageState: storage, userAgent, viewport: { width: 1280, height: 900 } });
+      if (!await onBrandSide(await ctx.newPage(), 45000)) throw new Error('Content Rewards opened signed out');
+    } catch (e) {
+      throw new Error(`Signed in, but the saved session did not open Content Rewards headless (${e.message}). Nothing was sent.`);
+    } finally { await check.close(); }
+
+    const raw = rand(32);
+    const once = await globalThis.crypto.subtle.importKey('raw', raw, 'AES-GCM', false, ['encrypt']);
+    const file = join(ROOT, '.handoff.enc');
+    writeFileSync(file, JSON.stringify(await seal(once, { storage, userAgent, loginAt: new Date().toISOString() })));
+    run('gh', ['secret', 'set', 'ECLIPSE_HANDOFF', '-R', repo()], { input: Buffer.from(raw).toString('base64') });
+    const blob = run('git', ['hash-object', '-w', file]);
+    const tree = run('git', ['mktree'], { input: `100644 blob ${blob}\thandoff.enc\n` });
+    const commit = run('git', ['-c', 'user.name=eclipse-live', '-c', 'user.email=eclipse-live@users.noreply.github.com',
+      'commit-tree', tree, '-m', 'Whop session handoff (encrypted)']);
+    run('git', ['push', '-q', '-f', 'origin', `${commit}:refs/heads/handoff`]);
+    rmSync(file);
+    run('gh', ['workflow', 'run', 'handoff.yml', '-R', repo()], { stdio: 'pipe' });
+    console.log('Signed in and checked. The session is on its way to the cloud job (sealed); a sync runs in about a minute.');
+    console.log(`Watch it: https://github.com/${repo()}/actions/workflows/handoff.yml`);
   },
 
   // Everything a new dashboard needs, from a few questions: the campaign, the names it shows, the key art. Generates a

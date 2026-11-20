@@ -1,0 +1,65 @@
+# Signs the cloud job back in from a Mac that doesn't hold the master key. `npm run handoff` pushes a Whop session
+# sealed with a one-time key (secret ECLIPSE_HANDOFF) to the `handoff` branch and starts this. It checks the session
+# opens Content Rewards from here, saves it as the sync session, runs one full sync and publishes, then deletes the
+# handoff branch. It never switches the 15-minute schedule on; that stays a separate, deliberate step.
+name: handoff
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write    # save the session to `state`, delete `handoff`
+  pages: write
+  id-token: write
+
+concurrency:
+  group: sync
+  cancel-in-progress: false
+
+jobs:
+  handoff:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Fetch the handed-off session and the current one
+        run: |
+          git fetch -q --depth=1 origin handoff && git show FETCH_HEAD:handoff.enc > .handoff.enc
+          git fetch -q --depth=1 origin state && git show FETCH_HEAD:state.enc > .state.enc || true
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci --no-audit --no-fund
+
+      - name: Check the session here and re-seal it with the master key
+        env:
+          ECLIPSE_KEY: ${{ secrets.ECLIPSE_KEY }}
+          ECLIPSE_HANDOFF: ${{ secrets.ECLIPSE_HANDOFF }}
+        run: node scripts/handoff.mjs
+
+      - name: Pull Content Rewards and build the dashboards
+        env:
+          ECLIPSE_KEY: ${{ secrets.ECLIPSE_KEY }}
+        run: node src/sync.mjs
+
+      - name: Save the session and drop the handoff
+        run: |
+          blob=$(git hash-object -w .state.enc)
+          tree=$(printf '100644 blob %s\tstate.enc\n' "$blob" | git mktree)
+          commit=$(git -c user.name=eclipse-live -c user.email=eclipse-live@users.noreply.github.com commit-tree "$tree" -m 'Whop session (encrypted)')
+          git push -q -f origin "$commit:refs/heads/state"
+          git push -q origin :refs/heads/handoff
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+      - id: deploy
+        uses: actions/deploy-pages@v4

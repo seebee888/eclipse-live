@@ -5,6 +5,7 @@
   "description": "Eclipse client dashboards: Content Rewards data every 15 minutes, password-gated per client.",
   "scripts": {
     "login": "node src/cli.mjs login",
+    "handoff": "node src/cli.mjs handoff",
     "sync": "node src/sync.mjs",
     "config": "node src/cli.mjs config",
     "new": "node src/cli.mjs new",

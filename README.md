@@ -3,7 +3,8 @@
 Password-protected live dashboards for Eclipse clients. Every 15 minutes a GitHub Actions job opens Content Rewards
 with a saved Whop session, pulls each client's campaign, and publishes fresh numbers to GitHub Pages. Nobody's
 computer has to be on, and Claude doesn't need to be running. The marketing site serves the same pages at
-`https://eclipseclipping.com/live/` (a Vercel rewrite to GitHub Pages), and that's the address clients get.
+`https://eclipseclipping.com/live/` (Vercel rewrites to GitHub Pages: `/live/<slug>/` serves that folder's
+`index.html`, and `/live/<slug>` redirects to the slash form on the same domain), and that's the address clients get.
 
 ```
 GitHub Actions (every 15 min)                         GitHub Pages
@@ -62,6 +63,12 @@ npm run status     # when the cloud job last published
 ```bash
 npm run login      # Chrome opens, you sign in to Whop yourself, the session is saved and a sync starts
 ```
+
+On a Mac without the master key (`~/.eclipse-live/key` lives only on the Mac that ran `init`), use
+`npm run handoff` instead. You sign in the same way; the session goes up sealed with a one-time key (secret
+`ECLIPSE_HANDOFF`, blob on a short-lived `handoff` branch), and `.github/workflows/handoff.yml` checks it opens
+Content Rewards from GitHub's machines, re-seals it with the master key, runs one sync and publishes. It does not switch
+the 15-minute schedule back on; do that with `gh workflow enable sync.yml` once the handoff run is green.
 
 **Add a client:** `npm run new`. It asks for the Content Rewards campaign link, the name and title the dashboard
 shows, where it's streaming, and the key art (drag the image into Terminal). It then makes a random link and a
