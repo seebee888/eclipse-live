@@ -545,7 +545,7 @@ html, body { overflow-x: clip; }
 const DATA = document.querySelector('meta[name=eclipse-data]')?.content;
 const SLUG = location.pathname.split('/').filter(x => x && x !== 'index.html').slice(-1)[0] || 'demo';
 const KEY_SLOT = 'eclipse-key:' + SLUG;
-const SYNC_EVERY = 15 * 60e3, STALE_AFTER = 40 * 60e3, DAY = 864e5, HOUR = 36e5;
+const SYNC_EVERY = 24 * 36e5, STALE_AFTER = 40 * 60e3, DAY = 864e5, HOUR = 36e5;
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let KEY = null, SNAP = null, ART = null, BOX_T = null, MODE = 'total', BOOTED = false, NEXT_CHECK = 0, AGO_AT = 0;
 let GLOBE = null, WAKE = null, INSTALL = null, TICK_T = 0;
@@ -859,7 +859,7 @@ function render(s) {
   <header class="bar" id="bar"><div class="bar-in">
     <div class="brand" role="img" aria-label="Eclipse">${BRAND}</div>
     <div class="ttl" aria-hidden="true"><b>${esc(c.talent)}</b><span>${esc(c.title)}</span></div>
-    <div class="sync" id="sync" title="New numbers land every 15 minutes, and this page picks them up on its own.">
+    <div class="sync" id="sync" title="New numbers land about once a day, and this page picks them up on its own.">
       <svg viewBox="0 0 22 22" aria-hidden="true"><circle class="trk" cx="11" cy="11" r="8"/><circle class="prg" id="prg" cx="11" cy="11" r="8" stroke-dasharray="50.3" stroke-dashoffset="50.3"/></svg>
       <b id="sync-l">Live</b><span class="sep"></span>
       <span class="long">Updated <span data-ago="${esc(s.generatedAt)}">${ago(s.generatedAt)}</span></span><span class="sep long"></span>
@@ -916,7 +916,7 @@ function render(s) {
         <p class="tag">The clipping network built for entertainment.</p>
       </div>
       <div>
-        <p class="fine">Views as of ${esc(timeLocal(s.dataAsOf))}. Verified views are reviewed and approved for authentic engagement. This page refreshes itself every 15 minutes.</p>
+        <p class="fine">Views as of ${esc(timeLocal(s.dataAsOf))}. Verified views are reviewed and approved for authentic engagement. Numbers are usually updated once a day.</p>
         <div class="acts">
           ${document.fullscreenEnabled ? `<button class="act" type="button" id="a-tv">${SVG.screen}Big screen</button>` : ''}
           <button class="act" type="button" id="a-install" ${INSTALL ? '' : 'hidden'}>${SVG.install}Install app</button>
@@ -1110,7 +1110,7 @@ function tick(force) {
   document.getElementById('sync')?.classList.toggle('stale', stale);
   const lab = document.getElementById('sync-l');
   if (lab) lab.textContent = stale ? 'Delayed' : 'Live';
-  if (next) next.textContent = left > 0 ? `in ${Math.max(1, Math.ceil(left / 60e3))} min` : stale ? 'soon' : 'any minute';
+  if (next) next.textContent = 'tomorrow';
   if (force || now - AGO_AT > 10e3) {
     AGO_AT = now;
     document.querySelectorAll('[data-ago]').forEach(el => { el.textContent = ago(el.dataset.ago); });
@@ -1526,7 +1526,8 @@ async function mountGlobe(a, first) {
 // ---------- lifecycle ----------
 function rebase(snap) {
   const DAYMS = 864e5, gen = Date.parse(snap.generatedAt), now = Date.now();
-  const target = Math.floor((now - 4 * 60e3) / (15 * 60e3)) * 15 * 60e3 + 4 * 60e3;
+  let target = Math.floor(now / DAYMS) * DAYMS + 15 * 36e5;   // 9 AM Central today
+  if (target > now - 30 * 60e3) target -= DAYMS;
   const dt = target - gen, dd = Math.round(dt / DAYMS) * DAYMS;
   const iso = /^\d{4}-\d{2}-\d{2}T[\d:.]+Z$/, day = /^\d{4}-\d{2}-\d{2}$/;
   const walk = v => {
