@@ -1,0 +1,48 @@
+# Publishes the site when only the site changed (the page, or static pages like the sample dashboard), without
+# opening Content Rewards. Client dashboards keep the numbers they already have. Shares the sync job's lock, so the
+# two never deploy at the same time.
+name: site
+
+on:
+  push:
+    branches: [main]
+    paths: ['site/**', 'scripts/static.mjs', '.github/workflows/site.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: sync
+  cancel-in-progress: false
+
+jobs:
+  site:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci --no-audit --no-fund
+
+      - name: Build the site
+        env:
+          ECLIPSE_KEY: ${{ secrets.ECLIPSE_KEY }}
+        run: node scripts/static.mjs
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+      - id: deploy
+        uses: actions/deploy-pages@v4

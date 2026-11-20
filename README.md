@@ -78,6 +78,11 @@ npm run config && git add config/config.enc && git commit -m "Update clients" &&
 Keep the client's name out of commit messages: the repo is public. A new password needs a new `salt` too, and
 changing it signs out everyone who saved the old one.
 
+**Sample dashboard:** `site/8ebbd9eenz/` is a static demo for prospects (made-up numbers, sealed with its own password,
+timestamps that always read as fresh). It is built outside this repo and never touches the config. Changes under `site/`
+publish through `.github/workflows/site.yml` (`scripts/static.mjs`), which deploys without opening Content Rewards and
+carries over every client dashboard that already has numbers, so it also works while the Whop session is signed out.
+
 **Preview locally** from a saved pull: `node scripts/preview.mjs <pull.json> <slug>=<pull key> …`, then serve `dist/`.
 
 ## One-time setup (already done for seebee888/eclipse-live)
